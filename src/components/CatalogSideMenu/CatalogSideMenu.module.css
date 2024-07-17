@@ -1,0 +1,97 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #1b4f40; 
+  gap: 15px;
+}
+
+.icon {
+  font-size: 24px;
+  color: #ffffff;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #ffffff;
+}
+
+
+.backIcon {
+  font-size: 24px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: space-between;
+  margin: 40px 0;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  margin: 0;
+}
+
+.addButton {
+  border: 1px solid #ffffff;
+  border-radius: 4px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: center;
+  width: 150px;
+  font-size: 14px;
+  transition: background-color 0.3s, border-color 0.3s;
+  color: #ffffff;
+}
+
+.addDataButton {
+  background-color: #28a745; 
+  border-color: #218838;
+}
+
+.addDataButton:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.addLayerButton {
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+}
+
+.addLayerButton:hover {
+  background-color: #d9d9d9;
+}
+
+.separator {
+  border: none;
+  height: 1px;
+  background-color: #1b4f40; 
+  margin: 15px 0;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 60px;
+}
+
+.label {
+  font-size: 16px;
+  color: #ffffff; 
+}
+
+.select {
+  background-color: #1b4f40; 
+  color: #ffffff;
+  border: 1px solid #444;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}

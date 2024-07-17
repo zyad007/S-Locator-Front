@@ -1,0 +1,17 @@
+.layout {
+  display: flex;
+  min-height: 100vh; 
+  height: 100%;
+  overflow-y: auto; 
+}
+
+.content {
+  flex-grow: 1;
+}
+
+.CreateCatalogMenu {
+  padding: 1.5rem;
+  width: 330px;
+  background-color: rgb(17, 87, 64);
+  color: #fff;
+}
