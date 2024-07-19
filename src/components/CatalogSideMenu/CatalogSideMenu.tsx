@@ -8,7 +8,16 @@ import MultipleLayersSetting from "../MultipleLayersSetting/MultipleLayersSettin
 
 function CatalogSideMenu() {
   const { openModal, setSidebarMode } = useUIContext();
-  const { setSelectedContainerType, selectedLayers } = useCatalogContext();
+  const {
+    setSelectedContainerType,
+    selectedLayers,
+    resetState,
+    setFormStage,
+    setLegendList,
+    formStage,
+    setSelectedCatalog,
+    setSubscriptionPrice,
+  } = useCatalogContext();
 
   function openCatalogModal(contentType: "Catalogue" | "Layer") {
     setSelectedContainerType(contentType);
@@ -27,33 +36,65 @@ function CatalogSideMenu() {
     openCatalogModal("Layer");
   }
 
+  function handleDiscardClick(event: MouseEvent) {
+    resetState();
+    setSidebarMode("default");
+  }
+
+  function handleSaveClick() {
+    setSelectedCatalog({ id: "test", name: "test" });
+    setLegendList("test");
+    setSubscriptionPrice("test");
+
+    setFormStage("catalogue details");
+    setSidebarMode("catalogDetails");
+  }
+
   return (
     <div className={styles.container}>
       <nav className={styles.nav}>
         <MdArrowBackIos className={styles.backIcon} onClick={handleBackClick} />
         <MdLayers className={styles.icon} />
       </nav>
-      <div className={styles.section}>
-        <p className={styles.sectionTitle}>Datasets</p>
-        <button
-          className={`${styles.addButton} ${styles.addDataButton}`}
-          onClick={handleAddCatalogClick}
-        >
-          + Add Catalog
-        </button>
+      <div className={styles.content}>
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Datasets</p>
+          <button
+            className={`${styles.addButton} ${styles.addDataButton}`}
+            onClick={handleAddCatalogClick}
+          >
+            + Add Catalog
+          </button>
+        </div>
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Layers</p>
+          <button
+            className={`${styles.addButton} ${styles.addLayerButton}`}
+            onClick={handleAddLayerClick}
+          >
+            + Add Layer
+          </button>
+        </div>
+        {selectedLayers.map(function (layer, index) {
+          return <MultipleLayersSetting key={index} layerIndex={index} />;
+        })}
       </div>
-      <div className={styles.section}>
-        <p className={styles.sectionTitle}>Layers</p>
-        <button
-          className={`${styles.addButton} ${styles.addLayerButton}`}
-          onClick={handleAddLayerClick}
-        >
-          + Add Layer
-        </button>
-      </div>
-      {selectedLayers.map(function (layer, index) {
-        return <MultipleLayersSetting key={index} layerIndex={index} />;
-      })}
+      {selectedLayers.length > 0 && (
+        <div className={styles.saveButtonsContainer}>
+          <button
+            onClick={handleDiscardClick}
+            className={`${styles.addButton} ${styles.addLayerButton}`}
+          >
+            Discard
+          </button>
+          <button
+            onClick={handleSaveClick}
+            className={`${styles.addButton} ${styles.addDataButton}`}
+          >
+            Save
+          </button>
+        </div>
+      )}
     </div>
   );
 }

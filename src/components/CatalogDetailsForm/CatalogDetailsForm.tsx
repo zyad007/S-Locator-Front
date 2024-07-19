@@ -19,6 +19,7 @@ function CatalogDetailsForm() {
     isLoading,
     isSaved,
     isError,
+    resetState,
   } = useCatalogContext();
 
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +70,7 @@ function CatalogDetailsForm() {
   }
 
   function handleDiscardClick() {
+    resetState();
     setName("");
     setDescription("");
     setSidebarMode("default");

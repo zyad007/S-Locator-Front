@@ -12,6 +12,7 @@ import { useCatalogContext } from "../../context/CatalogContext";
 import { useUIContext } from "../../context/UIContext";
 import { FeatureCollection } from "../../types/allTypesAndInterfaces";
 import UserLayerCard from "../UserLayerCard/UserLayerCard";
+import userIdData from "../../currentUserId.json"; 
 
 function DataContainer() {
   const {
@@ -37,15 +38,13 @@ function DataContainer() {
   const [wsResloading, setWsResLoading] = useState<boolean>(true);
   const [wsReserror, setWsResError] = useState<Error | null>(null);
 
-  console.log(resData, "from data container");
-
   useEffect(
     function () {
       var isMounted = true; // Flag to ensure we don't update state on an unmounted component
 
       // Fetch user layers data
       function fetchUserLayers() {
-        var body = { user_id: "1845e047-9632-4243-aadf-041bfb7a7f1f" };
+        var body = { user_id: userIdData.user_id };
         HttpReq<UserLayer[]>(
           urls.user_catalogs,
           function (data) {

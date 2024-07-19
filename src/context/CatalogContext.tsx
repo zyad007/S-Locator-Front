@@ -13,6 +13,7 @@ import {
 } from "../types/allTypesAndInterfaces";
 import { HttpReq } from "../services/apiService";
 import urls from "../urls.json";
+import userIdData from "../currentUserId.json"; 
 
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 
@@ -28,8 +29,8 @@ export function CatalogProvider(props: { children: ReactNode }) {
     id: string;
     name: string;
   } | null>(null);
-  const [legendList, setLegendList] = useState("");
-  const [subscriptionPrice, setSubscriptionPrice] = useState("");
+  const [legendList, setLegendList] = useState("tes");
+  const [subscriptionPrice, setSubscriptionPrice] = useState("tet");
   const [description, setDescription] = useState("");
   const [name, setName] = useState("");
   const [selectedContainerType, setSelectedContainerType] = useState<
@@ -200,7 +201,7 @@ export function CatalogProvider(props: { children: ReactNode }) {
         ? {
             prdcer_ctlg_id: id,
             as_layers: true,
-            user_id: "1845e047-9632-4243-aadf-041bfb7a7f1f",
+            user_id: userIdData.user_id,
           }
         : { catalogue_dataset_id: id };
 
@@ -261,6 +262,16 @@ export function CatalogProvider(props: { children: ReactNode }) {
     setIsSaved(false);
     setIsError(false);
     setFormStage(resetTo);
+  }
+
+  function resetState() {
+    setGeoPoints("");
+    setSelectedLayers([]);
+    setCurrentlySelectedLayer(null);
+    setTempGeoPointsList([]);
+    setLastGeoIdRequest(undefined);
+    setLastGeoMessageRequest(undefined);
+    setLastGeoError(null);
   }
 
   // Function to update the color of a specific layer
@@ -327,6 +338,7 @@ export function CatalogProvider(props: { children: ReactNode }) {
         openDropdownIndex,
         setOpenDropdownIndex,
         updateLayerDisplay,
+        resetState,
       }}
     >
       {children}

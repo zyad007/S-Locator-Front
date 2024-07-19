@@ -54,11 +54,9 @@ function ColorSelect(props: ColorSelectProps) {
 
   function toggleDropdown(event: ReactMouseEvent) {
     event.stopPropagation();
-    console.log(`Toggling dropdown. Current state isOpen: ${isOpen}`);
     if (isOpen) {
       setOpenDropdownIndex(null);
     } else {
-      console.log(`Dropdown opened for dropdownIndex: ${dropdownIndex}`);
       setOpenDropdownIndex(dropdownIndex);
     }
   }
@@ -75,7 +73,6 @@ function ColorSelect(props: ColorSelectProps) {
         });
 
         if (clickedOutside) {
-          console.log("Clicked outside dropdown");
           setOpenDropdownIndex(null);
         }
       }

@@ -2,9 +2,41 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #1b4f40; 
+  border-bottom: 1px solid #1b4f40;
   gap: 15px;
+  padding:  0.75rem;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 95vh; 
+  justify-content: space-between; 
+  overflow: auto;
+}
+
+.container::-webkit-scrollbar {
+  width: 6px; 
+}
+
+.container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: rgba(
+    136,
+    136,
+    136,
+    0.5
+  ); 
+  border-radius: 10px; 
+  border: 2px solid transparent; 
+  background-clip: padding-box; 
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(85, 85, 85, 0.5); 
 }
 
 .icon {
@@ -13,7 +45,6 @@
   padding-bottom: 6px;
   border-bottom: 2px solid #ffffff;
 }
-
 
 .backIcon {
   font-size: 24px;
@@ -49,7 +80,7 @@
 }
 
 .addDataButton {
-  background-color: #28a745; 
+  background-color: #28a745;
   border-color: #218838;
 }
 
@@ -71,7 +102,7 @@
 .separator {
   border: none;
   height: 1px;
-  background-color: #1b4f40; 
+  background-color: #1b4f40;
   margin: 15px 0;
 }
 
@@ -84,14 +115,27 @@
 
 .label {
   font-size: 16px;
-  color: #ffffff; 
+  color: #ffffff;
 }
 
 .select {
-  background-color: #1b4f40; 
+  background-color: #1b4f40;
   color: #ffffff;
   border: 1px solid #444;
-  padding: 8px;
   border-radius: 4px;
   font-size: 14px;
+}
+
+.saveButtonsContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding: 0 0.75rem;
+    margin-bottom: 20px;
+
+}
+
+.content {
+  flex-grow: 1;
+  padding: 0 0.75rem;
 }

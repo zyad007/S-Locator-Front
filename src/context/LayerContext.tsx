@@ -1,3 +1,4 @@
+// LayerProvider.js
 import React, {
   createContext,
   useContext,
@@ -14,6 +15,7 @@ import {
 } from "../types/allTypesAndInterfaces";
 import urls from "../urls.json";
 import { useCatalogContext } from "./CatalogContext";
+import userIdData from "../currentUserId.json";
 
 const LayerContext = createContext<LayerContextType | undefined>(undefined);
 
@@ -67,21 +69,26 @@ export function LayerProvider(props: { children: ReactNode }) {
     [firstFormResponse]
   );
 
-  useEffect(() => {
-    if (geoPoints && typeof geoPoints !== "string") {
-      const updatedGeoPoints: FeatureCollection = {
+useEffect(
+  function () {
+    if (geoPoints && typeof geoPoints !== "string" && selectedColor) {
+      var updatedGeoPoints = {
         ...geoPoints,
-        features: geoPoints.features.map((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            color: selectedColor.toLowerCase(),
-          },
-        })),
+        features: geoPoints.features.map(function (feature) {
+          return {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              color: selectedColor.toLowerCase(),
+            },
+          };
+        }),
       };
       setGeoPoints(updatedGeoPoints);
     }
-  }, [selectedColor]);
+  },
+  [selectedColor, geoPoints]
+);
 
   // Function to handle the save operation, simulating an API call
   function handleSave() {
@@ -91,7 +98,7 @@ export function LayerProvider(props: { children: ReactNode }) {
       return;
     }
 
-    const userId = "1845e047-9632-4243-aadf-041bfb7a7f1f"; // Hardcoded user ID
+    const userId = userIdData.user_id;
 
     const postData = {
       prdcer_layer_name: secondFormData.name,

@@ -29,6 +29,7 @@
 .label {
   font-weight: bold;
   color: #333;
+  width: 105px;
 }
 
 .colorSelectContainer {
@@ -45,7 +46,7 @@
   font-size: 12px;
   margin: 2px 0;
   color: #555;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .checkboxesContainer {
@@ -80,7 +81,7 @@
 }
 
 .checkbox:checked::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0.4px;
   left: 3.4px;

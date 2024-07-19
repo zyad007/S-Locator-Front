@@ -23,7 +23,7 @@
 }
 
 .select {
-  width: 100%;
+  max-width: 275px;
   padding: 10px;
   border: 1px solid #888; 
   border-radius: 4px;

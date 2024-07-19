@@ -5,7 +5,6 @@
   box-shadow: none !important;
 }
 
-/* Ensure the close button is hidden */
 .mapboxglPopupCloseButton {
   display: none !important;
 }

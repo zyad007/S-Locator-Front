@@ -67,7 +67,6 @@ export interface CustomProperties {
   user_ratings_total: number;
 }
 
-
 export interface UserLayerCardProps {
   id: string;
   name: string;
@@ -137,10 +136,11 @@ export interface CatalogContextType {
         id: string;
         color: string;
         is_zone_lyr: boolean;
-        display: boolean; // Add display property here
+        display: boolean; 
       }[]
     >
   >;
+  resetState(): void;
   updateLayerColor(layerIndex: number, newColor: string): void;
   updateLayerZone(layerIndex: number, isZoneLayer: boolean): void;
   currentlySelectedLayer: string | null;
@@ -152,7 +152,7 @@ export interface CatalogContextType {
   >;
   openDropdownIndex: number | null;
   setOpenDropdownIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  updateLayerDisplay(layerIndex: number, display: boolean): void; // Add updateLayerDisplay method here
+  updateLayerDisplay(layerIndex: number, display: boolean): void; 
 }
 
 export interface City {
