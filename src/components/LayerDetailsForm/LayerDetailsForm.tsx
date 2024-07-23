@@ -18,6 +18,10 @@ function LayerDetailsForm() {
   const { handleNextStep, setFirstFormResponse, loading, setDatasetInfo } =
     useLayerContext();
 
+  const [textSearchInput, setTextSearchInput] = useState<string>("");
+  const [searchType, setSearchType] = useState<string>("old nearby search");
+  const [password, setPassword] = useState<string>("");
+
   const [firstFormData, setFirstFormData] = useState<FormData>({
     selectedCountry: "",
     selectedCity: "",
@@ -108,7 +112,7 @@ function LayerDetailsForm() {
     }
   }
 
-  function validateForm() {
+  function validateForm(action: string) {
     if (
       !firstFormData.selectedCountry ||
       !firstFormData.selectedCity ||
@@ -118,12 +122,25 @@ function LayerDetailsForm() {
       setError(new Error("All fields are required."));
       return false;
     }
+  
+    if (searchType === "text search") {
+      if (!textSearchInput.trim()) {
+        setError(new Error("Text search input cannot be empty or just spaces."));
+        return false;
+      }
+    }
+  
+    if (action === "Get Data" && password.toLowerCase() !== "i will be careful") {
+      setError(new Error("Correct password is required to get data."));
+      return false;
+    }
+  
     setError(null);
     return true;
   }
 
   function handleButtonClick(action: string) {
-    if (validateForm()) {
+    if (validateForm(action)) {
       handleFirstFormApiCall(action);
     }
   }
@@ -142,6 +159,10 @@ function LayerDetailsForm() {
       dataset_category: firstFormData.selectedSubcategory,
       dataset_country: firstFormData.selectedCountry,
       dataset_city: firstFormData.selectedCity,
+      action: action,
+      search_type: searchType,
+      ...(searchType === "text search" && { text_search_input: textSearchInput.trim() }),
+      ...(action === "Get Data" && { password: password })
     };
 
     HttpReq<FirstFormResponse>(
@@ -168,6 +189,53 @@ function LayerDetailsForm() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.formGroup}>
+        <label className={styles.label} htmlFor="searchType">
+          Search Type:
+        </label>
+        <select
+          id="searchType"
+          name="searchType"
+          className={styles.select}
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value)}
+        >
+          <option value="old nearby search">Old Nearby Search</option>
+          <option value="new nearby search">New Nearby Search</option>
+          <option value="nearby but actually text search">Nearby But Actually Text Search</option>
+          <option value="text search">Text Search</option>
+        </select>
+      </div>
+      <div className={styles.formGroup}>
+        <label className={styles.label} htmlFor="password">
+          Password:
+        </label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          className={styles.input}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter password for 'Get Data'"
+        />
+      </div>
+      {searchType === "text search" && (
+        <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="textSearchInput">
+            Text Search:
+          </label>
+          <input
+            type="text"
+            id="textSearchInput"
+            name="textSearchInput"
+            className={styles.input}
+            value={textSearchInput}
+            onChange={(e) => setTextSearchInput(e.target.value)}
+            placeholder="Enter search text"
+          />
+        </div>
+      )}
       <div className={styles.formGroup}>
         <label className={styles.label} htmlFor="country">
           Country:
