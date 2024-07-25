@@ -19,7 +19,7 @@ function LayerDetailsForm() {
     useLayerContext();
 
   const [textSearchInput, setTextSearchInput] = useState<string>("");
-  const [searchType, setSearchType] = useState<string>("old nearby search");
+  const [searchType, setSearchType] = useState<string>("new nearby search");
   const [password, setPassword] = useState<string>("");
 
   const [firstFormData, setFirstFormData] = useState<FormData>({
@@ -130,8 +130,8 @@ function LayerDetailsForm() {
       }
     }
   
-    if (action === "Get Data" && password.toLowerCase() !== "i will be careful") {
-      setError(new Error("Correct password is required to get data."));
+    if (action === "full data" && password.toLowerCase() !== "1235") {
+      setError(new Error("Correct password is required to full data."));
       return false;
     }
   
@@ -149,42 +149,78 @@ function LayerDetailsForm() {
     const selectedCity = cities.find(function (city) {
       return city.name === firstFormData.selectedCity;
     });
-
+  
     if (!selectedCity) {
       setError(new Error("Selected city not found."));
       return;
     }
-
-    const postData = {
-      dataset_category: firstFormData.selectedSubcategory,
-      dataset_country: firstFormData.selectedCountry,
-      dataset_city: firstFormData.selectedCity,
-      action: action,
-      search_type: searchType,
-      ...(searchType === "text search" && { text_search_input: textSearchInput.trim() }),
-      ...(action === "Get Data" && { password: password })
-    };
-
-    HttpReq<FirstFormResponse>(
-      urls.create_layer,
-      function (response) {
-        setFirstFormResponse(response as FirstFormResponse); // Type assertion
-        if (response.bknd_dataset_id && response.prdcer_lyr_id) {
-          setDatasetInfo({
-            bknd_dataset_id: response.bknd_dataset_id,
-            prdcer_lyr_id: response.prdcer_lyr_id,
+  
+    let callCount = 0;
+    const MAX_CALLS = 10;
+  
+    const makeApiCall = (pageToken?: string) => {
+      if (callCount >= MAX_CALLS) {
+        console.log("Reached maximum number of API calls");
+        handleNextStep();
+        return;
+      }
+  
+      callCount++;
+  
+      const postData = {
+        dataset_category: firstFormData.selectedSubcategory,
+        dataset_country: firstFormData.selectedCountry,
+        dataset_city: firstFormData.selectedCity,
+        action: action,
+        search_type: searchType,
+        ...(searchType === "text search" && { text_search_input: textSearchInput.trim() }),
+        ...(action === "full data" && { password: password }),
+        ...(pageToken && { page_token: pageToken })
+      };
+  
+      HttpReq<FirstFormResponse>(
+        urls.create_layer,
+        function (response) {
+          setFirstFormResponse((prevResponse) => {
+            if (prevResponse && typeof prevResponse !== "string" && prevResponse.data && response.data) {
+              // Merge the features from the new response with the existing ones
+              return {
+                ...response,
+                data: {
+                  ...response.data,
+                  features: [...(prevResponse.data.features || []), ...(response.data.features || [])]
+                }
+              };
+            }
+            return response;
           });
-        }
-      },
-      setPostResMessage,
-      setPostResId,
-      setLocalLoading,
-      setError,
-      "post",
-      postData
-    );
-
-    handleNextStep();
+  
+          if (response.data.bknd_dataset_id && response.data.prdcer_lyr_id) {
+            setDatasetInfo({
+              bknd_dataset_id: response.data.bknd_dataset_id,
+              prdcer_lyr_id: response.data.prdcer_lyr_id,
+            });
+          }
+  
+          // Check if there's a next page token and if we haven't reached the max calls
+          if (response.data.next_page_token && callCount < MAX_CALLS) {
+            makeApiCall(response.data.next_page_token);
+          } else {
+            // If no more pages or reached max calls, proceed to the next step
+            handleNextStep();
+          }
+        },
+        setPostResMessage,
+        setPostResId,
+        setLocalLoading,
+        setError,
+        "post",
+        postData
+      );
+    };
+  
+    // Initial API call
+    makeApiCall();
   }
 
   return (
@@ -217,7 +253,7 @@ function LayerDetailsForm() {
           className={styles.input}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter password for 'Get Data'"
+          placeholder="Enter password for 'full data'"
         />
       </div>
       {searchType === "text search" && (
@@ -347,10 +383,10 @@ function LayerDetailsForm() {
             <button
               className={styles.button}
               onClick={function () {
-                handleButtonClick("Get Data");
+                handleButtonClick("full data");
               }}
             >
-              Get Data
+              full data
             </button>
           </>
         )}
