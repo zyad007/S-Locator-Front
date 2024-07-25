@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./CatalogueCard.module.css";
 import { CatalogueCardProps } from "../../types/allTypesAndInterfaces";
 import { useCatalogContext } from "../../context/CatalogContext";
+import placeholderImage from "../../placeholderImage/catalogue.png";
 
 function CatalogueCard(props: CatalogueCardProps) {
   const {
@@ -15,9 +16,12 @@ function CatalogueCard(props: CatalogueCardProps) {
     typeOfCard,
   } = props;
 
-  // Handle add button click
-
   const { selectedContainerType: containerType } = useCatalogContext();
+  const [isImageError, setIsImageError] = useState(false);
+
+  function handleImageError() {
+    setIsImageError(true);
+  }
 
   function renderActionItems() {
     if (containerType !== "Home") {
@@ -52,7 +56,7 @@ function CatalogueCard(props: CatalogueCardProps) {
                 fill="currentColor"
                 aria-hidden="true"
               >
-                <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+                <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372-166.6 372 372-166.6 372-372 372z"></path>
                 <path d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"></path>
               </svg>
             </span>
@@ -96,7 +100,14 @@ function CatalogueCard(props: CatalogueCardProps) {
       </div>
       <div className={styles.card}>
         <div className={styles.cardCover}>
-          <img alt={name} src={thumbnail_url} className={styles.cardImage} />
+          <img
+            alt={name}
+            src={isImageError ? placeholderImage : thumbnail_url}
+            onError={handleImageError}
+            className={`${styles.cardImage} ${
+              isImageError ? styles.placeholderImage : ""
+            }`}
+          />
         </div>
         <div className={styles.cardBody}>
           <div className={styles.cardMeta}>
@@ -105,7 +116,9 @@ function CatalogueCard(props: CatalogueCardProps) {
             </div>
           </div>
           <div className={styles.metaDataWrapper}>
-            <span className={styles.catalogueRow}>{records_number} rows</span>
+            <span className={styles.catalogueRow}>
+              {records_number || 0} rows
+            </span>
             <p className={styles.catalogueDesc}>{description}</p>
           </div>
         </div>

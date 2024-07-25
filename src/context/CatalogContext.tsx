@@ -10,10 +10,12 @@ import {
   CatalogContextType,
   FeatureCollection,
   Feature,
+  SaveResponse,
 } from "../types/allTypesAndInterfaces";
 import { HttpReq } from "../services/apiService";
 import urls from "../urls.json";
-import userIdData from "../currentUserId.json"; 
+import userIdData from "../currentUserId.json";
+import { colorOptions, isValidColor } from "../utils/helperFunctions";
 
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 
@@ -24,13 +26,9 @@ export function CatalogProvider(props: { children: ReactNode }) {
   const [saveMethod, setSaveMethod] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [selectedCatalog, setSelectedCatalog] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
-  const [legendList, setLegendList] = useState("tes");
-  const [subscriptionPrice, setSubscriptionPrice] = useState("tet");
+  const [isError, setIsError] = useState<Error | null>(null);
+  const [legendList, setLegendList] = useState<string[]>([]);
+  const [subscriptionPrice, setSubscriptionPrice] = useState("");
   const [description, setDescription] = useState("");
   const [name, setName] = useState("");
   const [selectedContainerType, setSelectedContainerType] = useState<
@@ -50,7 +48,6 @@ export function CatalogProvider(props: { children: ReactNode }) {
   const [lastGeoError, setLastGeoError] = useState<Error | null>(null);
   const [idColors, setIdColors] = useState<Record<string, string>>({});
 
-  const colorOptions = ["Red", "Green", "Blue", "Yellow", "Black"];
   const [selectedColor, setSelectedColor] = useState<string>("red");
   const [selectedLayers, setSelectedLayers] = useState<
     {
@@ -59,14 +56,16 @@ export function CatalogProvider(props: { children: ReactNode }) {
       color: string;
       is_zone_lyr: boolean;
       display: boolean;
+      legend?: string;
     }[]
   >([]);
-  const [currentlySelectedLayer, setCurrentlySelectedLayer] = useState<
-    string | null
-  >(null);
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
     null
   );
+
+  const [saveResponse, setSaveResponse] = useState<SaveResponse | null>(null);
+  const [saveResponseMsg, setSaveResponseMsg] = useState("");
+  const [saveReqId, setSaveReqId] = useState("");
 
   const colorIndexRef = useRef(Object.keys(idColors).length);
 
@@ -74,9 +73,11 @@ export function CatalogProvider(props: { children: ReactNode }) {
     setLastGeoError(error ?? null);
   }
 
+
   function processFeatureCollection(
     item: FeatureCollection,
-    id: string
+    id: string,
+    color: string
   ): FeatureCollection {
     return {
       ...item,
@@ -86,6 +87,7 @@ export function CatalogProvider(props: { children: ReactNode }) {
           properties: {
             ...feature.properties,
             geoPointId: id,
+            color: color, // Assign color to the feature properties
           },
         };
       }),
@@ -94,7 +96,8 @@ export function CatalogProvider(props: { children: ReactNode }) {
 
   function processData(
     data: FeatureCollection | FeatureCollection[],
-    id: string
+    id: string,
+    color: string
   ): FeatureCollection[] {
     if (Array.isArray(data)) {
       return data
@@ -102,35 +105,71 @@ export function CatalogProvider(props: { children: ReactNode }) {
           return item && item.features;
         })
         .map(function (item) {
-          return processFeatureCollection(item, id);
+          return processFeatureCollection(item, id, color);
         });
     } else if (data && data.features) {
-      return [processFeatureCollection(data, id)];
+      return [processFeatureCollection(data, id, color)];
     }
     return [];
   }
 
   // Function to handle adding a new layer or catalog item
-  function handleAddClick(id: string, name: string, typeOfCard: string) {
-    const newColor = colorOptions[colorIndexRef.current % colorOptions.length]; // Note: In the future, this color will be provided as an argument from the clicked card.
+  function handleAddClick(
+    id: string,
+    name: string,
+    typeOfCard: string,
+    existingColor?: string,
+    legend?: string,
+    layers?: { layer_id: string; points_color: string }[]
+  ) {
+    if (typeOfCard === "userCatalog" && layers) {
+      layers.forEach(function (layer) {
+        const newColor = isValidColor(layer.points_color)
+          ? layer.points_color
+          : existingColor ||
+            colorOptions[colorIndexRef.current % colorOptions.length];
 
-    colorIndexRef.current += 1;
+        colorIndexRef.current += 1;
 
-    setSelectedLayers(function (prevLayers) {
-      return [
-        ...prevLayers,
-        {
-          name,
-          id,
-          color: newColor,
-          is_zone_lyr: typeOfCard === "layer",
-          display: true,
-        },
-      ];
-    });
+        setSelectedLayers(function (prevLayers) {
+          return [
+            ...prevLayers,
+            {
+              name,
+              id: layer.layer_id,
+              color: newColor,
+              is_zone_lyr: false,
+              display: true,
+              legend: legend || "",
+            },
+          ];
+        });
 
-    setCurrentlySelectedLayer(id);
-    fetchGeoPoints(id, typeOfCard);
+        fetchGeoPoints(layer.layer_id, "layer", newColor);
+      });
+    } else {
+      const newColor =
+        existingColor ||
+        colorOptions[colorIndexRef.current % colorOptions.length];
+
+      colorIndexRef.current += 1;
+
+      setSelectedLayers(function (prevLayers) {
+        return [
+          ...prevLayers,
+          {
+            name,
+            id,
+            color: newColor,
+            is_zone_lyr: typeOfCard === "layer",
+            display: true,
+            legend: legend || "",
+          },
+        ];
+      });
+
+      fetchGeoPoints(id, typeOfCard, newColor);
+    }
   }
 
   function updateLayerDisplay(layerIndex: number, display: boolean) {
@@ -195,31 +234,32 @@ export function CatalogProvider(props: { children: ReactNode }) {
   );
 
   // Function to fetch geo points for a layer or catalog item
-  async function fetchGeoPoints(id: string, typeOfCard: string) {
+  async function fetchGeoPoints(id: string, typeOfCard: string, color: string) {
     const apiJsonRequest =
       typeOfCard === "layer"
         ? {
-            prdcer_ctlg_id: id,
-            as_layers: true,
+            prdcer_lyr_id: id,
             user_id: userIdData.user_id,
           }
+        : typeOfCard === "userCatalog"
+        ? { prdcer_ctlg_id: id, as_layers: true, user_id: userIdData.user_id }
         : { catalogue_dataset_id: id };
 
     const url =
-      typeOfCard === "layer" ? urls.fetch_ctlg_lyrs : urls.http_catlog_data;
+      typeOfCard === "layer"
+        ? urls.prdcer_lyr_map_data
+        : typeOfCard === "userCatalog"
+        ? urls.fetch_ctlg_lyrs
+        : urls.http_catlog_data;
 
     await HttpReq<FeatureCollection | FeatureCollection[]>(
       url,
       function (data) {
-        const updatedDataArray = processData(data, id);
+        const updatedDataArray = processData(data, id, color);
 
         setTempGeoPointsList(function (prevList) {
           return [...prevList, ...updatedDataArray];
         });
-
-        if (!currentlySelectedLayer) {
-          setCurrentlySelectedLayer(id);
-        }
       },
       setLastGeoMessageRequest,
       setLastGeoIdRequest,
@@ -230,44 +270,49 @@ export function CatalogProvider(props: { children: ReactNode }) {
     );
   }
 
-  // Function to handle saving the current state
   function handleSave() {
-    const saveData = {
-      catalogId: selectedCatalog?.id,
-      description,
-      name,
-      saveMethod,
+  const layersData = selectedLayers.map(function (layer) {
+    return {
+      layer_id: layer.id,
+      points_color: layer.color,
+    };
+  });
+
+    const requestBody = {
+      prdcer_ctlg_name: name,
+      subscription_price: subscriptionPrice,
+      ctlg_description: description,
+      total_records: 0,
+      lyrs: layersData,
+      user_id: userIdData.user_id,
+      thumbnail_url: "",
     };
 
-    setIsLoading(true);
-
-    setTimeout(function () {
-      setIsLoading(false);
-      if (true) {
-        setIsSaved(true);
-        setLegendList("");
-        setSubscriptionPrice("");
-        setDescription("");
-        setName("");
-      } else {
-        setIsError(true);
-      }
-    }, 2000);
+    HttpReq(
+      urls.save_producer_catalog,
+      setSaveResponse,
+      setSaveResponseMsg,
+      setSaveReqId,
+      setIsLoading,
+      setIsError,
+      "post",
+      requestBody
+    );
   }
 
   // Function to reset form stage
   function resetFormStage(resetTo: string) {
     setDescription("");
     setName("");
-    setIsSaved(false);
-    setIsError(false);
+    setSubscriptionPrice(" ");
+    setSaveResponse(null);
+    setIsError(null);
     setFormStage(resetTo);
   }
 
   function resetState() {
     setGeoPoints("");
     setSelectedLayers([]);
-    setCurrentlySelectedLayer(null);
     setTempGeoPointsList([]);
     setLastGeoIdRequest(undefined);
     setLastGeoMessageRequest(undefined);
@@ -279,9 +324,6 @@ export function CatalogProvider(props: { children: ReactNode }) {
     setSelectedLayers(function (prevLayers) {
       const updatedLayers = [...prevLayers];
       updatedLayers[layerIndex].color = newColor;
-
-      setCurrentlySelectedLayer(updatedLayers[layerIndex].id);
-
       return updatedLayers;
     });
   }
@@ -291,7 +333,6 @@ export function CatalogProvider(props: { children: ReactNode }) {
     setSelectedLayers(function (prevLayers) {
       const updatedLayers = [...prevLayers];
       updatedLayers[layerIndex].is_zone_lyr = isZoneLayer;
-      setCurrentlySelectedLayer(updatedLayers[layerIndex].id);
       return updatedLayers;
     });
   }
@@ -302,9 +343,7 @@ export function CatalogProvider(props: { children: ReactNode }) {
         formStage,
         saveMethod,
         isLoading,
-        isSaved,
         isError,
-        selectedCatalog,
         legendList,
         subscriptionPrice,
         description,
@@ -312,9 +351,7 @@ export function CatalogProvider(props: { children: ReactNode }) {
         setFormStage,
         setSaveMethod,
         setIsLoading,
-        setIsSaved,
         setIsError,
-        setSelectedCatalog,
         setLegendList,
         setSubscriptionPrice,
         setDescription,
@@ -332,13 +369,15 @@ export function CatalogProvider(props: { children: ReactNode }) {
         setSelectedLayers,
         updateLayerColor,
         updateLayerZone,
-        currentlySelectedLayer,
-        setCurrentlySelectedLayer,
         setTempGeoPointsList,
         openDropdownIndex,
         setOpenDropdownIndex,
         updateLayerDisplay,
         resetState,
+        saveResponse,
+        saveResponseMsg,
+        saveReqId,
+        setSaveResponse,
       }}
     >
       {children}

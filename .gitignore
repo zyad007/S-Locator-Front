@@ -6,7 +6,7 @@ pc_venv/
 **/.idea/
 **/.env
 **/secret*
-
+src/.env
 mykeys*
 ssh_config
 

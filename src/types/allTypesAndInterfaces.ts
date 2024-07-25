@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { Interface } from "readline";
 
 export interface ModalProps {
   children: React.ReactNode;
@@ -35,15 +36,21 @@ export interface Catalog {
   records_number: number;
   catalog_link: string;
   can_access: boolean;
+  prdcer_ctlg_id?: string;
+  prdcer_ctlg_name?: string;
+  total_records?: number;
+  ctlg_description?: string;
+  lyrs?: { layer_id: string; points_color: string }[]; 
 }
 
 export interface UserLayer {
-  prdcer_ctlg_id: string;
-  prdcer_ctlg_name: string;
-  ctlg_description: string;
-  subscription_price: string;
-  ctlg_owner_user_id: string;
-  lyrs: string[];
+  prdcer_lyr_id: string;
+  prdcer_layer_name: string;
+  points_color?: string;
+  layer_legend: string;
+  layer_description: string;
+  records_count: number;
+  is_zone_lyr: boolean;
 }
 
 export interface CatalogueCardProps {
@@ -66,23 +73,26 @@ export interface CustomProperties {
   business_status: string;
   user_ratings_total: number;
 }
-
 export interface UserLayerCardProps {
   id: string;
   name: string;
   description: string;
-  price: string;
   typeOfCard: string;
-  onMoreInfo(
-    selectedCatalog: { id: string; name: string },
-    typeOfCard: string
-  ): void;
+  legend: string;
+  points_color?: string;
+  onMoreInfo(selectedCatalog: {
+    id: string;
+    name: string;
+    typeOfCard: string;
+  }): void;
 }
-
 export interface CardItem {
   id: string;
   name: string;
   typeOfCard: string;
+  points_color?: string;
+  legend?: string;
+  lyrs?: { layer_id: string; points_color: string }[];
 }
 
 // Catalog Context Type
@@ -90,10 +100,8 @@ export interface CatalogContextType {
   formStage: string;
   saveMethod: string;
   isLoading: boolean;
-  isSaved: boolean;
-  isError: boolean;
-  selectedCatalog: { id: string; name: string } | null;
-  legendList: string;
+  isError: Error | null;
+  legendList: string[];
   subscriptionPrice: string;
   description: string;
   name: string;
@@ -101,19 +109,22 @@ export interface CatalogContextType {
   setFormStage: React.Dispatch<React.SetStateAction<string>>;
   setSaveMethod: React.Dispatch<React.SetStateAction<string>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsSaved: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsError: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedCatalog: React.Dispatch<
-    React.SetStateAction<{ id: string; name: string } | null>
-  >;
-  setLegendList: React.Dispatch<React.SetStateAction<string>>;
+  setIsError: React.Dispatch<React.SetStateAction<Error | null>>;
+  setLegendList: React.Dispatch<React.SetStateAction<string[]>>;
   setSubscriptionPrice: React.Dispatch<React.SetStateAction<string>>;
   setDescription: React.Dispatch<React.SetStateAction<string>>;
   setName: React.Dispatch<React.SetStateAction<string>>;
   setSelectedContainerType: React.Dispatch<
     React.SetStateAction<"Catalogue" | "Layer" | "Home">
   >;
-  handleAddClick(id: string, name: string, typeOfCard: string): void;
+  handleAddClick(
+    id: string,
+    name: string,
+    typeOfCard: string,
+    existingColor?: string,
+    legend?: string,
+    layers?: { layer_id: string; points_color: string }[]
+  ): void;
   handleSave(): void;
   resetFormStage(resetTo: string): void;
   geoPoints: FeatureCollection | string;
@@ -127,7 +138,8 @@ export interface CatalogContextType {
     id: string;
     color: string;
     is_zone_lyr: boolean;
-    display: boolean; // Add display property here
+    display: boolean;
+    legend?: string;
   }[];
   setSelectedLayers: React.Dispatch<
     React.SetStateAction<
@@ -136,23 +148,30 @@ export interface CatalogContextType {
         id: string;
         color: string;
         is_zone_lyr: boolean;
-        display: boolean; 
+        display: boolean;
+        legend?: string;
       }[]
     >
   >;
   resetState(): void;
   updateLayerColor(layerIndex: number, newColor: string): void;
   updateLayerZone(layerIndex: number, isZoneLayer: boolean): void;
-  currentlySelectedLayer: string | null;
-  setCurrentlySelectedLayer: React.Dispatch<
-    React.SetStateAction<string | null>
-  >;
   setTempGeoPointsList: React.Dispatch<
     React.SetStateAction<FeatureCollection[]>
   >;
   openDropdownIndex: number | null;
   setOpenDropdownIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  updateLayerDisplay(layerIndex: number, display: boolean): void; 
+  updateLayerDisplay(layerIndex: number, display: boolean): void;
+  saveResponse: SaveResponse | null;
+  saveResponseMsg: string;
+  saveReqId: string;
+  setSaveResponse: React.Dispatch<React.SetStateAction<SaveResponse | null>>;
+}
+
+export interface SaveResponse {
+  message: string;
+  request_id: string;
+  data: string;
 }
 
 export interface City {

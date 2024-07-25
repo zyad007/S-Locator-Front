@@ -15,7 +15,6 @@ function CatalogSideMenu() {
     setFormStage,
     setLegendList,
     formStage,
-    setSelectedCatalog,
     setSubscriptionPrice,
   } = useCatalogContext();
 
@@ -41,14 +40,19 @@ function CatalogSideMenu() {
     setSidebarMode("default");
   }
 
-  function handleSaveClick() {
-    setSelectedCatalog({ id: "test", name: "test" });
-    setLegendList("test");
-    setSubscriptionPrice("test");
+function handleSaveClick() {
+  const legends = selectedLayers
+    .map(function (layer) {
+      return layer.legend;
+    })
+    .filter(function (legend): legend is string {
+      return !!legend;
+    });
 
-    setFormStage("catalogue details");
-    setSidebarMode("catalogDetails");
-  }
+  setLegendList(legends);
+  setFormStage("catalogue details");
+  setSidebarMode("catalogDetails");
+}
 
   return (
     <div className={styles.container}>

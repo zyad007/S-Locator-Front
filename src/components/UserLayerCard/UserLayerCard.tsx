@@ -1,13 +1,18 @@
 import React from "react";
 import styles from "./UserLayerCard.module.css";
 import placeHolderImage from "../../placeholderImage/layer.png";
-import {UserLayerCardProps} from "../../types/allTypesAndInterfaces"
-
+import { UserLayerCardProps } from "../../types/allTypesAndInterfaces";
 
 function UserLayerCard(props: UserLayerCardProps) {
+
   function handleMoreInfo() {
-    props.onMoreInfo({ id: props.id, name: props.name }, props.typeOfCard);
+    props.onMoreInfo({
+      id: props.id,
+      name: props.name,
+      typeOfCard: props.typeOfCard,
+    });
   }
+
 
   return (
     <div className={styles.catalogueWrapper}>
@@ -27,7 +32,7 @@ function UserLayerCard(props: UserLayerCardProps) {
             </div>
           </div>
           <div className={styles.metaDataWrapper}>
-            <span className={styles.catalogueRow}>{props.price}</span>
+            <span className={styles.catalogueRow}>{props.legend}</span>
             <p className={styles.catalogueDesc}>{props.description}</p>
           </div>
         </div>

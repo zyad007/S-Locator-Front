@@ -6,21 +6,20 @@ import { useCatalogContext } from "../../context/CatalogContext";
 import { MultipleLayersSettingProps } from "../../types/allTypesAndInterfaces";
 
 function MultipleLayersSetting(props: MultipleLayersSettingProps) {
-  var layerIndex = props.layerIndex;
-  var {
+  const { layerIndex } = props;
+  const {
     selectedLayers,
     setSelectedLayers,
-    setCurrentlySelectedLayer,
     geoPoints,
     setGeoPoints,
     setTempGeoPointsList,
     updateLayerDisplay,
   } = useCatalogContext();
-  var layer = selectedLayers[layerIndex];
-  var { id, name, is_zone_lyr, display } = layer;
+  const layer = selectedLayers[layerIndex];
+  const { id, name, is_zone_lyr, display } = layer;
 
-  var [isZoneLayer, setIsZoneLayer] = useState(is_zone_lyr);
-  var [isDisplay, setIsDisplay] = useState(display);
+  const [isZoneLayer, setIsZoneLayer] = useState(is_zone_lyr);
+  const [isDisplay, setIsDisplay] = useState(display);
 
   useEffect(
     function () {
@@ -38,7 +37,6 @@ function MultipleLayersSetting(props: MultipleLayersSettingProps) {
     });
     setSelectedLayers(updatedLayers);
     setIsZoneLayer(!isZoneLayer);
-    setCurrentlySelectedLayer(id);
   }
 
   function handleDisplayChange() {
@@ -71,8 +69,6 @@ function MultipleLayersSetting(props: MultipleLayersSettingProps) {
         });
       });
     });
-
-    setCurrentlySelectedLayer(null);
   }
 
   return (

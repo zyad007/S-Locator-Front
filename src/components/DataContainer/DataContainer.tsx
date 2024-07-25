@@ -12,7 +12,8 @@ import { useCatalogContext } from "../../context/CatalogContext";
 import { useUIContext } from "../../context/UIContext";
 import { FeatureCollection } from "../../types/allTypesAndInterfaces";
 import UserLayerCard from "../UserLayerCard/UserLayerCard";
-import userIdData from "../../currentUserId.json"; 
+import userIdData from "../../currentUserId.json";
+import { isValidColor, colorOptions } from "../../utils/helperFunctions";
 
 function DataContainer() {
   const {
@@ -28,6 +29,7 @@ function DataContainer() {
   const [catalogCollectionData, setCatalogCollectionData] = useState<Catalog[]>(
     []
   );
+  const [userCatalogsData, setUserCatalogsData] = useState<Catalog[]>([]);
   const [resMessage, setResMessage] = useState<string>("");
   const [resId, setResId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,9 +48,9 @@ function DataContainer() {
       function fetchUserLayers() {
         var body = { user_id: userIdData.user_id };
         HttpReq<UserLayer[]>(
-          urls.user_catalogs,
-          function (data) {
-            if (isMounted) setUserLayersData(data);
+          urls.user_layers,
+          function (response) {
+            if (isMounted) setUserLayersData(response);
           },
           setResMessage,
           setResId,
@@ -63,13 +65,31 @@ function DataContainer() {
       function fetchCatalogCollection() {
         HttpReq<Catalog[]>(
           urls.catlog_collection,
-          function (data) {
-            if (isMounted) setCatalogCollectionData(data);
+          function (response) {
+            if (isMounted) setCatalogCollectionData(response);
           },
           setResMessage,
           setResId,
           setLoading,
           setError
+        );
+      }
+
+
+      // Fetch user catalogs data
+      function fetchUserCatalogs() {
+        var body = { user_id: userIdData.user_id };
+        HttpReq<Catalog[]>(
+          urls.user_catalogs,
+          function (response) {
+            if (isMounted) setUserCatalogsData(response);
+          },
+          setResMessage,
+          setResId,
+          setLoading,
+          setError,
+          "post",
+          body
         );
       }
 
@@ -82,7 +102,7 @@ function DataContainer() {
           fetchUserLayers();
         } else if (selectedContainerType === "Catalogue") {
           fetchCatalogCollection();
-          fetchUserLayers();
+          fetchUserCatalogs();
         } else if (selectedContainerType === "Home") {
           fetchCatalogCollection();
         }
@@ -103,7 +123,7 @@ function DataContainer() {
     function () {
       // Combine catalog and user layers data based on selected container type
       if (selectedContainerType === "Catalogue") {
-        var combinedData = catalogCollectionData.concat(userLayersData as any);
+        var combinedData = catalogCollectionData.concat(userCatalogsData);
         if (JSON.stringify(resData) !== JSON.stringify(combinedData)) {
           setResData(combinedData);
         }
@@ -117,22 +137,28 @@ function DataContainer() {
         }
       }
     },
-    [userLayersData, catalogCollectionData, selectedContainerType]
+    [
+      userLayersData,
+      catalogCollectionData,
+      userCatalogsData,
+      selectedContainerType,
+    ]
   );
 
   // Filter out already selected layers from the data to be displayed
   const filteredData = useMemo(
     function () {
-      return Array.isArray(resData)
-        ? resData.filter(function (item) {
-            return !selectedLayers.some(function (layer) {
-              return (
-                (item as Catalog).id === layer.id ||
-                (item as UserLayer).prdcer_ctlg_id === layer.id
-              );
-            });
-          })
-        : resData;
+      if (Array.isArray(resData)) {
+        return resData.filter(function (item) {
+          return !selectedLayers.some(function (layer) {
+            return (
+              (item as Catalog).id === layer.id ||
+              (item as UserLayer).prdcer_lyr_id === layer.id
+            );
+          });
+        });
+      }
+      return resData;
     },
     [resData, selectedLayers]
   );
@@ -156,57 +182,69 @@ function DataContainer() {
       handleAddClick(
         selectedItem.id,
         selectedItem.name,
-        selectedItem.typeOfCard
+        selectedItem.typeOfCard,
+        selectedItem.points_color,
+        selectedItem.legend,
+        selectedItem.lyrs
       );
     }
 
     closeModal();
   }
 
+
   // Render a card based on the item type
   function makeCard(item: Catalog | UserLayer) {
-    if ("prdcer_ctlg_id" in item) {
+    if ("prdcer_lyr_id" in item) {
       // Render UserLayerCard if item is a user layer
       return (
         <UserLayerCard
-          key={item.ctlg_owner_user_id}
-          id={item.prdcer_ctlg_id}
-          name={item.prdcer_ctlg_name}
-          description={item.ctlg_description}
-          price={item.subscription_price}
+          key={item.prdcer_lyr_id}
+          id={item.prdcer_lyr_id}
+          name={item.prdcer_layer_name}
+          description={item.layer_description}
+          legend={item.layer_legend}
           typeOfCard="layer"
+          points_color={item.points_color}
           onMoreInfo={function () {
             handleCatalogCardClick({
-              id: item.prdcer_ctlg_id,
-              name: item.prdcer_ctlg_name,
+              id: item.prdcer_lyr_id,
+              name: item.prdcer_layer_name,
               typeOfCard: "layer",
+              points_color: isValidColor(item.points_color as string)
+                ? item.points_color
+                : undefined,
+              legend: item.layer_legend,
             });
           }}
         />
       );
     } else {
       // Render CatalogueCard if item is a catalog
+      var typeOfCard = "prdcer_ctlg_name" in item ? "userCatalog" : "catalog";
       return (
         <CatalogueCard
-          key={item.id}
-          id={item.id}
-          thumbnail_url={item.thumbnail_url}
-          name={item.name}
-          records_number={item.records_number}
-          description={item.description}
+          key={item.id || item.prdcer_ctlg_id || ""}
+          id={item.id || item.prdcer_ctlg_id || ""}
+          thumbnail_url={item.thumbnail_url || ""}
+          name={item.name || item.prdcer_ctlg_name || ""}
+          records_number={item.records_number || item.total_records || 0}
+          description={item.description || item.ctlg_description || ""}
           onMoreInfo={function () {
             handleCatalogCardClick({
-              id: item.id,
-              name: item.name,
-              typeOfCard: "catalog",
+              id: item.id || item.prdcer_ctlg_id || "",
+              name: item.name || item.prdcer_ctlg_name || "",
+              typeOfCard: typeOfCard,
+              ...(typeOfCard === "userCatalog" && { lyrs: item.lyrs }),
             });
           }}
-          can_access={item.can_access}
-          typeOfCard="catalog"
+          can_access={item.can_access ?? false}
+          typeOfCard={typeOfCard}
         />
       );
     }
   }
+
 
   // Render cards based on filtered data
   function renderCards() {
@@ -214,12 +252,13 @@ function DataContainer() {
       return <div>{filteredData}</div>;
     }
 
-    return (
-      Array.isArray(filteredData) &&
-      filteredData.map(function (item) {
+    if (Array.isArray(filteredData)) {
+      return filteredData.map(function (item) {
         return makeCard(item);
-      })
-    );
+      });
+    }
+
+    return null;
   }
 
   if (error) {
@@ -241,19 +280,23 @@ function DataContainer() {
       <div className={styles.tabMenu}>
         <button
           className={
-            activeTab === "Data Catalogue" || activeTab === "Data Layer"
+            (activeTab === "Data Catalogue" &&
+              selectedContainerType === "Catalogue") ||
+            (activeTab === "Data Layer" && selectedContainerType === "Layer")
               ? styles.activeTab
               : styles.tabButton
           }
           onClick={function () {
             setActiveTab(
-              selectedContainerType === "Catalogue"
+              selectedContainerType === "Catalogue" ||
+                selectedContainerType === "Home"
                 ? "Data Catalogue"
                 : "Data Layer"
             );
           }}
         >
-          {selectedContainerType === "Catalogue" || "Home"
+          {selectedContainerType === "Catalogue" ||
+          selectedContainerType === "Home"
             ? "Data Catalogue"
             : "Data Layer"}
         </button>
