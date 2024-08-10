@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import { MdInfo, MdMap, MdTableChart, MdPerson, MdExitToApp } from "react-icons/md";
+import { MdInfo, MdMap, MdTableChart, MdPerson, MdExitToApp, MdAttachMoney } from "react-icons/md";
 import { FaLayerGroup, FaBoxOpen } from "react-icons/fa";
 import styles from "./Layout.module.css";
 import ExpandableMenu from "../ExpandableMenu/ExpandableMenu";
@@ -16,6 +16,7 @@ import { useAuth } from "../../context/AuthContext";
 import CatalogSideMenu from "../CatalogSideMenu/CatalogSideMenu";
 import CatalogDetailsForm from "../CatalogDetailsForm/CatalogDetailsForm";
 import CreateLayer from "../CreateLayer/CreateLayer";
+import InternalCostEstimate from "../CostEstimatorForm/CostEstimatorForm";
 
 function Layout() {
   const { 
@@ -50,6 +51,10 @@ function Layout() {
     logout();
     navigate('/');
   };
+
+  function openCostEstimateModal() {
+    openModal(<InternalCostEstimate />, { isSmaller: true });
+  }
 
   const menuContent = (
     <ul className={styles.menuList}>
@@ -119,6 +124,16 @@ function Layout() {
           </Link>
         </li>
       )}
+      <li>
+        <div
+          onClick={openCostEstimateModal}
+          className={styles.iconContainer}
+        >
+          <MdAttachMoney className={styles.icon} />
+          {isMenuExpanded && <span> Internal Cost Estimate</span>}
+        </div>
+      </li>
+
     </ul>
   );
 

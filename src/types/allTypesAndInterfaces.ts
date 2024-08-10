@@ -339,3 +339,6 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   logout: () => void;
 }
+export interface CategoryData {
+  [category: string]: string[];
+}

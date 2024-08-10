@@ -1,15 +1,22 @@
+// src/components/CostEstimatorForm/CostEstimatorForm.tsx
+
 import React, { useState } from "react";
 import { formatSubcategoryName } from "../../utils/helperFunctions";
-import styles from "./LayerDetailsForm.module.css";
-import { useLayerContext } from "../../context/LayerContext";
-import { useCatalogContext } from "../../context/CatalogContext";
-import withLocationAndCategories, { WithLocationAndCategoriesProps } from "./withLocationAndCategories";
+import styles from "./CostEstimatorForm.module.css";
+import withLocationAndCategories, { WithLocationAndCategoriesProps } from "../LayerDetailsForm/withLocationAndCategories";
+import { HttpReq } from "../../services/apiService";
+import urls from "../../urls.json";
 
-interface LayerDetailsFormProps extends WithLocationAndCategoriesProps {
-  // Add any additional props specific to LayerDetailsForm here
+interface CostEstimatorFormProps extends WithLocationAndCategoriesProps {
+  // Add any additional props specific to CostEstimatorForm here
 }
 
-function LayerDetailsForm({
+interface CostEstimate {
+  cost: number;
+  api_calls: number;
+}
+
+function CostEstimatorForm({
   countries,
   cities,
   categories,
@@ -17,92 +24,44 @@ function LayerDetailsForm({
   handleChange,
   handleTypeToggle,
   validateForm,
-  setFirstFormData,
-}: LayerDetailsFormProps) {
-  const {
-    handleNextStep,
-    setCentralizeOnce,
-    setShowLoaderTopup,
-    textSearchInput,
-    setTextSearchInput,
-    handleFirstFormApiCall,
-    searchType,
-    setSearchType,
-    password,
-    setPassword,
-  } = useLayerContext();
-
-  const { setGeoPoints } = useCatalogContext();
-
+}: CostEstimatorFormProps) {
+  const [costEstimate, setCostEstimate] = useState<CostEstimate | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleButtonClick(
-    action: string,
-    event: React.MouseEvent<HTMLButtonElement>
-  ) {
-    event.preventDefault(); 
-
-    if (validateForm(action)) {
-      if (action === "full data") {
-        setCentralizeOnce(true);
-      }
-      setShowLoaderTopup(true);
-      handleNextStep();
-      handleFirstFormApiCall(action);
+  function handleCostEstimate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+  
+    if (validateForm("estimate")) {
+      setIsLoading(true);
+      const requestBody = {
+        included_categories: firstFormData.includedTypes,
+        excluded_categories: firstFormData.excludedTypes,
+        city_name: firstFormData.selectedCity,
+        country: firstFormData.selectedCountry,
+      };
+  
+      HttpReq<CostEstimate>(
+        urls.cost_calculator,
+        (data) => {
+          if (data && typeof data.cost === 'number' && typeof data.api_calls === 'number') {
+            setCostEstimate(data);
+          } else {
+            setError(new Error('Invalid response from server'));
+          }
+        },
+        () => {},
+        () => {},
+        () => setIsLoading(false),
+        setError,
+        "post",
+        requestBody
+      );
     }
   }
 
   return (
-    <form className={styles.container}>
-      <div className={styles.formGroup}>
-        <label className={styles.label} htmlFor="searchType">
-          Search Type:
-        </label>
-        <select
-          id="searchType"
-          name="searchType"
-          className={styles.select}
-          value={searchType}
-          onChange={(e) => setSearchType(e.target.value)}
-        >
-          <option value="new nearby search">New Nearby Search</option>
-          <option value="text search">Text Search</option>
-        </select>
-      </div>
-
-      <div className={styles.formGroup}>
-        <label className={styles.label} htmlFor="password">
-          Password:
-        </label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          className={styles.select}
-          value={password}
-          autoComplete="new-password"
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter password for 'full data'"
-        />
-      </div>
-
-      {searchType === "text search" && (
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="textSearchInput">
-            Text Search:
-          </label>
-          <input
-            type="text"
-            id="textSearchInput"
-            name="textSearchInput"
-            className={styles.input}
-            value={textSearchInput}
-            onChange={(e) => setTextSearchInput(e.target.value)}
-            placeholder="Enter search text"
-          />
-        </div>
-      )}
-
+    <form className={styles.container} onSubmit={handleCostEstimate}>
       <div className={styles.formGroup}>
         <label className={styles.label} htmlFor="country">
           Country:
@@ -155,7 +114,7 @@ function LayerDetailsForm({
             <div key={category} className={styles.categoryGroup}>
               <h3 className={styles.categoryTitle}>{category}</h3>
               <div className={styles.typeList}>
-                {(types as string[]).map((type: string) => {
+                {types.map((type) => {
                   const included = firstFormData.includedTypes.includes(type);
                   const excluded = firstFormData.excludedTypes.includes(type);
                   return (
@@ -186,25 +145,26 @@ function LayerDetailsForm({
           ))}
         </div>
       </div>
+
       {error && <p className={styles.error}>{error.message}</p>}
 
       <div className={styles.buttonContainer}>
-        <button
-          type="button"
-          onClick={(e) => handleButtonClick("sample", e)}
-        >
-          Get Sample
-        </button>
-        <button
-          type="button"
-          className={styles.button}
-          onClick={(e) => handleButtonClick("full data", e)}
-        >
-          Full data
-        </button>
+      <button type="submit" className={styles.button} disabled={isLoading}>
+        {isLoading ? "Estimating..." : "Estimate Cost"}
+      </button>
+    </div>
+
+    {costEstimate && (
+      <div className={styles.costEstimate}>
+        <h3>Cost Estimate</h3>
+        <p>Estimated Cost: ${costEstimate.cost?.toFixed(2) ?? 'N/A'}</p>
+        <p>API Calls: {costEstimate.api_calls ?? 'N/A'}</p>
       </div>
-    </form>
-  );
+    )}
+
+    {error && <p className={styles.error}>{error.message}</p>}
+  </form>
+);
 }
 
-export default withLocationAndCategories(LayerDetailsForm);
+export default withLocationAndCategories(CostEstimatorForm);
