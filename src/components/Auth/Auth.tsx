@@ -13,7 +13,7 @@ const Auth: React.FC = () => {
   const [isPasswordReset, setIsPasswordReset] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [username, setName] = useState('');
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [requestId, setRequestId] = useState<string>('');
@@ -36,43 +36,66 @@ const Auth: React.FC = () => {
     }
   }, [authResponse, navigate]);
 
+  const handleLogin = async (email: string, password: string) => {
+    await HttpReq(
+      urls.login,
+      setAuthResponse,
+      setAuthMessage,
+      setRequestId,
+      setIsLoading,
+      setError,
+      'post',
+      { email, password }
+    );
+  };
+
+  const handleRegistration = async (email: string, password: string, username: string) => {
+    await HttpReq(
+      urls.create_user_profile,
+      setAuthResponse,
+      setAuthMessage,
+      setRequestId,
+      setIsLoading,
+      setError,
+      'post',
+      { email, password, username }
+    );
+
+    // If no error occurred during registration, proceed with login
+    if (!error) {
+      await handleLogin(email, password);
+    }
+  };
+
+  const handlePasswordReset = async (email: string) => {
+    await HttpReq(
+      urls.reset_password,
+      setAuthResponse,
+      setAuthMessage,
+      setRequestId,
+      setIsLoading,
+      setError,
+      'post',
+      { email }
+    );
+
+    if (!error) {
+      setAuthMessage('Password reset email sent. Please check your inbox.');
+      setIsPasswordReset(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setAuthMessage(null);
     setError(null);
 
-    let endpoint, requestBody;
-
     if (isPasswordReset) {
-      endpoint = urls.reset_password;
-      requestBody = { email };
+      await handlePasswordReset(email);
+    } else if (isLogin) {
+      await handleLogin(email, password);
     } else {
-      endpoint = isLogin ? urls.login : urls.create_user_profile;
-      requestBody = isLogin ? { email, password } : { email, password, name };
-    }
-
-    try {
-      await HttpReq(
-        endpoint,
-        setAuthResponse,
-        setAuthMessage,
-        setRequestId,
-        setIsLoading,
-        setError,
-        'post',
-        requestBody
-      );
-
-      if (isPasswordReset) {
-        setAuthMessage('Password reset email sent. Please check your inbox.');
-        setIsPasswordReset(false);
-      }
-    } catch (catchError) {
-      console.error('Unexpected error during authentication:', catchError);
-      setAuthMessage('An unexpected error occurred. Please try again later');
-    } finally {
-      setIsLoading(false);
+      await handleRegistration(email, password, username);
     }
   };
 
@@ -106,7 +129,7 @@ const Auth: React.FC = () => {
             <input
               type="text"
               placeholder="Name"
-              value={name}
+              value={username}
               onChange={(e) => setName(e.target.value)}
               required
               className={styles.authInput}

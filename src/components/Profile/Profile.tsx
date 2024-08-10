@@ -47,6 +47,7 @@ const Profile: React.FC = () => {
       if (!authResponse || !('idToken' in authResponse)) {
         setError(new Error('Authentication information is missing.'));
         setIsLoading(false);
+        navigate('/auth');
         return;
       }
 
@@ -65,6 +66,7 @@ const Profile: React.FC = () => {
       } catch (err) {
         console.error('Unexpected error:', err);
         setError(new Error('An unexpected error occurred. Please try again.'));
+        navigate('/auth');
       } finally {
         setIsLoading(false);
       }
@@ -158,10 +160,19 @@ const Profile: React.FC = () => {
   };
 
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated) {
+    setTimeout(() => navigate('/auth'), 500);
+    return null;
+  }
   if (isLoading) return <div className={styles.loading}>Loading profile...</div>;
-  if (error) return <div className={styles.error}>{error.message}</div>;
-  if (!profile) return <div className={styles.error}>No profile data available.</div>;
+  if (error) {
+    setTimeout(() => navigate('/auth'), 500);
+    return null;
+  }
+  if (!profile) {
+    setTimeout(() => navigate('/auth'), 500);
+    return null;
+  }
 
   return (
     <div className={styles.profileContainer}>
