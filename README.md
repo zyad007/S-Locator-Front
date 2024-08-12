@@ -1,6 +1,5 @@
 # Getting Started with Create React App
 
-This project looks like 
 ![frontend_app_Tree-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/7852f216-d8c8-4b6d-a3c4-aaeca0efe90e)
 
 ## Available Scripts
