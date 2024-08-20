@@ -1,6 +1,6 @@
 // src/components/CreateLayer/CreateLayer.tsx
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useLayerContext } from "../../context/LayerContext";
 import styles from "./FormLoader.module.css";
 import FetchDatasetForm from "../FetchDatasetForm/FetchDatasetForm";
@@ -11,9 +11,19 @@ import ErrorIconFeedback from "../ErrorIconFeedback/ErrorIconFeedback";
 import SavedIconFeedback from "../SavedIconFeedback/SavedIconFeedback";
 import LoaderTopup from "../LoaderTopup/LoaderTopup";
 
+
 function FormLoader() {
-  const { createLayerformStage, loading, isError, saveResponse, showLoaderTopup } =
+  const { createLayerformStage, loading, isError, saveResponse, showLoaderTopup, setReqFetchDataset } =
     useLayerContext();
+
+  useEffect(() => {
+    setReqFetchDataset({
+      selectedCountry: '',
+      selectedCity: '',
+      includedTypes: [],
+      excludedTypes: [],
+    });
+  }, []);
 
   function renderContent() {
     if (saveResponse) {
