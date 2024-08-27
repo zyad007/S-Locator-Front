@@ -1,79 +1,76 @@
-// FrontEnd\src\context\AuthContext.tsx
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { AuthContextType, User, AuthResponse, AuthSuccessResponse} from '../types/allTypesAndInterfaces';
-import { HttpReq } from '../services/apiService'; // Import the HttpReq function
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+} from "react";
+import { HttpReq } from "../services/apiService";
+import { AuthContextType, AuthResponse, AuthSuccessResponse } from "../types/allTypesAndInterfaces";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-    const [authResponse, setAuthResponse] = useState<AuthResponse>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [authResponse, setAuthResponse] = useState<AuthResponse>(localStorage.getItem("authResponse") ? JSON.parse(localStorage.getItem("authResponse")!) as AuthSuccessResponse : null);
 
-    const refreshToken = useCallback(async (expiredAuthResponse: AuthSuccessResponse) => {
-      try {
-        await HttpReq<AuthSuccessResponse>(
-          "/refresh_token",
-          setAuthResponse,
-          () => {}, // setResMessage (not used here)
-          () => {}, // setResId (not used here)
-          () => {}, // setLoading (not used here)
-          (error) => console.error("Failed to refresh token:", error),
-          "post",
-          expiredAuthResponse
-        );
-      } catch (error) {
-        console.error("Failed to refresh token:", error);
-        logout();
-      }
-    }, []);
+  const refreshToken = async (expiredAuthResponse: AuthSuccessResponse) => {
+    try {
+      await HttpReq<AuthSuccessResponse>(
+        "/refresh_token",
+        setAuthResponse,
+        () => { }, // setResMessage (not used here)
+        () => { }, // setResId (not used here)
+        () => { }, // setLoading (not used here)
+        (error) => console.error("Failed to refresh token:", error),
+        "post",
+        expiredAuthResponse
+      );
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      // logout();
+    }
+  }
 
-    const logout = useCallback(() => {
-        setAuthResponse(null);
-        localStorage.removeItem('authResponse');
-        // You might want to redirect to the home page or login page after logout
-        window.location.href = '/';
-      }, []);
+  const logout = () => {
+    setAuthResponse(null);
+    localStorage.removeItem("authResponse");
+  };
 
-    useEffect(() => {
-      const storedResponse = localStorage.getItem('authResponse');
-      if (storedResponse) {
-        const parsedResponse = JSON.parse(storedResponse) as AuthSuccessResponse;
-        // Check if the token has expired
-        const now = Date.now();
-        const expirationTime = new Date(parsedResponse.created_at).getTime() + (parseInt(parsedResponse.expiresIn) * 1000);
-        if (now < expirationTime) {
-          setAuthResponse(parsedResponse);
-        } else {
-          // Token is expired, try to refresh
-          refreshToken(parsedResponse);
-        }
-      }
-    }, [refreshToken]);
+  // useEffect(() => {
 
-    useEffect(() => {
-      if (authResponse && 'idToken' in authResponse) {
-        localStorage.setItem('authResponse', JSON.stringify(authResponse));
-      } else {
-        localStorage.removeItem('authResponse');
-      }
-    }, [authResponse]);
+  //   const refreshTokenInterval = setInterval(() => {
+  //     if (!isAuthenticated) return
+  //     refreshToken(authResponse)
+  //   }, 60_000) //Refresh every minute
 
-    const isAuthenticated = !!(authResponse && 'idToken' in authResponse);
+  //   return () => clearInterval(refreshTokenInterval)
+  // }, []);
 
-    const value = {
-      authResponse,
-      setAuthResponse,
-      isAuthenticated,
-      logout,
-      refreshToken,
-    };
+  useEffect(() => {
+    if (authResponse && "idToken" in authResponse) {
+      localStorage.setItem("authResponse", JSON.stringify(authResponse));
+    } else {
+      localStorage.removeItem("authResponse");
+    }
+  }, [authResponse]);
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const isAuthenticated = !!(authResponse && "idToken" in authResponse);
+
+  const value = {
+    authResponse,
+    setAuthResponse,
+    isAuthenticated,
+    logout
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

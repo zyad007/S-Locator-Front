@@ -40,7 +40,7 @@ function CatalogueCard(props: CatalogueCardProps) {
         <>
           <li className={styles.actionItem}>
             <div onClick={onMoreInfo} className={styles.moreInfo}>
-              Load Data
+              {can_access ? <>Load Data</> : <>Subscribe</> }
             </div>
             <span
               role="img"
@@ -92,7 +92,7 @@ function CatalogueCard(props: CatalogueCardProps) {
   }
 
   return (
-    <div className={styles.catalogueWrapper}>
+    <div className={styles.catalogueWrapper + ' transition-all'}>
       <div className={styles.ribbonWrapper}>
         <span className={styles.ribbonChild}>
           <span>{can_access ? "Free" : "Paid"}</span>
@@ -117,7 +117,7 @@ function CatalogueCard(props: CatalogueCardProps) {
           </div>
           <div className={styles.metaDataWrapper}>
             <span className={styles.catalogueRow}>
-              {records_number || 0} rows
+              {records_number || 0} points
             </span>
             <p className={styles.catalogueDesc}>{description}</p>
           </div>

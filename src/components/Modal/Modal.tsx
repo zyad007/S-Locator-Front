@@ -14,17 +14,20 @@ function Modal(props: ModalProps) {
 
   return ReactDOM.createPortal(
     <div
-      className={`${styles.modalOverlay} ${
-        darkBackground ? styles.darkBackground : ""
-      } ${isSmaller ? styles.pointerEventsNone : ""}`}
+      id={'overlay'}
+      className={`${styles.modalOverlay} ${darkBackground ? styles.darkBackground : ""
+        } ${isSmaller ? styles.pointerEventsNone : ""}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (e.target.id) closeModal();
+      }}
     >
       <div
-        className={`${styles.modalContent} ${
-          isSmaller ? styles.smallerContainer : ""
-        } ${styles.pointerEventsAll}`}
+        className={`${styles.modalContent} rounded-lg border shadow ${isSmaller ? styles.smallerContainer : ""
+          } ${styles.pointerEventsAll}`}
       >
         <button
-          className={styles.closeButton}
+          className='transition-all text-xl w-10 h-10 hover:text-white font-bold hover:bg-red-600 absolute top-0 right-0 rounded-tr-lg'
           onClick={closeModal}
           aria-label="Close modal"
         >

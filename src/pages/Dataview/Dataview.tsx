@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react"; // React Data Grid Component
 import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the grid
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the grid
-import { useCatalogContext } from "../../context/CatalogContext";
 import { TabularData, Feature } from "../../types/allTypesAndInterfaces";
 import { ColDef } from "ag-grid-community";
+import { useCatalogContext } from "../../context/CatalogContext";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext";
 
 // Define the column definitions for the grid
 export const columnDefs: ColDef<TabularData>[] = [
@@ -48,6 +50,13 @@ const Dataview: React.FC = () => {
   const [businesses, setBusinesses] = useState<TabularData[]>([]);
   const { geoPoints } = useCatalogContext();
 
+  const { isAuthenticated } = useAuth();
+  const nav = useNavigate();
+
+  useEffect(() => {
+    // if (!isAuthenticated) nav("/auth");
+  }, []);
+
   useEffect(() => {
     if (geoPoints.length > 0) {
       // Use flatMap to combine features from all MapFeatures objects
@@ -61,16 +70,18 @@ const Dataview: React.FC = () => {
   }, [geoPoints]);
 
   return (
-    <div
-      className="ag-theme-quartz-dark"
-      style={{ height: "100%", width: "100%", backgroundColor: "#182230" }}
-    >
-      <AgGridReact
-        columnDefs={columnDefs}
-        rowData={businesses}
-        pagination={true}
-        paginationPageSize={10}
-      />
+    <div className="w-full h-full">
+      <div
+        className="ag-theme-quartz-dark"
+        style={{ height: "100%", width: "100%", backgroundColor: "#182230" }}
+      >
+        <AgGridReact
+          columnDefs={columnDefs}
+          rowData={businesses}
+          pagination={true}
+          paginationPageSize={10}
+        />
+      </div>
     </div>
   );
 };

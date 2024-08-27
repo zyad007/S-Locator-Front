@@ -9,13 +9,13 @@ import {
   CardItem,
 } from "../../types/allTypesAndInterfaces";
 import { useCatalogContext } from "../../context/CatalogContext";
-import { useUIContext } from "../../context/UIContext";
 import { MapFeatures } from "../../types/allTypesAndInterfaces";
 import UserLayerCard from "../UserLayerCard/UserLayerCard";
 import userIdData from "../../currentUserId.json";
 import { isValidColor } from "../../utils/helperFunctions";
 import { useAuth } from "../../context/AuthContext"; // Add this import
 import { useNavigate } from 'react-router-dom';
+import { useUIContext } from "../../context/UIContext";
 
 
 function DataContainer() {
@@ -250,13 +250,13 @@ function DataContainer() {
 
   return (
     <div className={styles.dataContainer}>
-      <h2 className={styles.dataHeading}>
+      <h2 className='text-2xl text-center font-semibold'>
         {selectedContainerType === "Catalogue" ||
         selectedContainerType === "Home"
           ? "Add Data to Map"
           : "Add Layers to Map"}
       </h2>
-      <div className={styles.tabMenu}>
+      <div className='flex w-full justify-center items-center my-4 rounded-xl font-semibold'>
         <button
           className={
             (activeTab === "Data Catalogue" &&
@@ -303,7 +303,7 @@ function DataContainer() {
         </button>
       </div>
       {activeTab === "Data Catalogue" || activeTab === "Data Layer" ? (
-        <div className={styles.dataGrid}>{renderCards()}</div>
+        <div className='flex flex-wrap gap-x-1 gap-y-3 overflow-y-auto h-[35rem] w-full'>{renderCards()}</div>
       ) : activeTab === "Load Files" ? (
         <div className={styles.placeholderContent}>Load Files Content</div>
       ) : (

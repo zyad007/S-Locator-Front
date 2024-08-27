@@ -62,7 +62,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
 
     // Reset CatalogContext states if applicable
     if (catalogIsSaved || catalogIsError) {
-      setSidebarMode("default");
       setCatalogIsSaved(null);
       resetFormStage("catalogue");
       resetState();

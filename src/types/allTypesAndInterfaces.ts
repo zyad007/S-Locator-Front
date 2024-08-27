@@ -91,7 +91,7 @@ export interface CatalogContextType {
   description: string;
   name: string;
   selectedContainerType: "Catalogue" | "Layer" | "Home";
-  setFormStage: React.Dispatch<React.SetStateAction<string>>;
+  setFormStage: React.Dispatch<React.SetStateAction<'catalog' | 'catalogDetails' | 'save'>>;
   setSaveMethod: React.Dispatch<React.SetStateAction<string>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsError: React.Dispatch<React.SetStateAction<Error | null>>;

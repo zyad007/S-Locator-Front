@@ -47,14 +47,14 @@ function MultipleLayersSetting(props: MultipleLayersSettingProps) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container + ' h-20 w-full'}>
       <button className={styles.closeButton} onClick={handleRemoveLayer}>
         <FaTrash />
       </button>
       <div className={styles.label}>
         <span className={styles.text}>{prdcer_layer_name}</span>
       </div>
-      <div className={styles.colorSelectContainer}>
+      <div className={'flex'}>
         <ColorSelect layerIndex={layerIndex} />
       </div>
       <div className={styles.checkboxesContainer}>

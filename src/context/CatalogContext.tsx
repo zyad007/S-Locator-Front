@@ -6,7 +6,7 @@ import {
 import { HttpReq } from "../services/apiService";
 import urls from "../urls.json";
 import userIdData from "../currentUserId.json";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { useAuth } from "../context/AuthContext"; // Add this import
 import { useNavigate } from 'react-router-dom';
 
@@ -18,7 +18,7 @@ export function CatalogProvider(props: { children: ReactNode }) {
   const navigate = useNavigate();
   const { children } = props;
 
-  const [formStage, setFormStage] = useState("catalogue");
+  const [formStage, setFormStage] = useState<'catalog' | 'catalogDetails' | 'save'>('catalog');
   const [saveMethod, setSaveMethod] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -156,9 +156,13 @@ export function CatalogProvider(props: { children: ReactNode }) {
       requestBody,
       authResponse.idToken
     );
+
+    setTimeout(() => {
+      resetFormStage('catalog')
+    }, 1000)
   }
 
-  function resetFormStage(resetTo: string) {
+  function resetFormStage(resetTo: 'catalog') {
     setDescription("");
     setName("");
     setSubscriptionPrice(" ");

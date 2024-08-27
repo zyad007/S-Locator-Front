@@ -1,12 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+::-webkit-scrollbar {
+    width: 10px;
 }
 
-:root{
-  font-family: 'Roboto', sans-serif !important;
+/* Track */
+::-webkit-scrollbar-track {
+    background: #ccc;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #999;
+}
+
+
+@layer components {
+    .sidebar-icon {
+        @apply my-1 mx-3 p-1 rounded-lg flex flex-row items-center select-none hover:cursor-pointer hover:bg-black hover:bg-opacity-20 transition-all;
+    }
 }

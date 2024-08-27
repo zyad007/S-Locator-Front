@@ -38,6 +38,10 @@ function ColorSelect({ layerIndex }: ColorSelectProps) {
 
   const isOpen = openDropdownIndex === dropdownIndex;
 
+  useEffect(() => {
+    setSelectedColor(null)
+  }, [])
+
   function handleOptionClick(
     optionName: string,
     hex: string,

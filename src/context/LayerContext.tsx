@@ -43,7 +43,7 @@ export function LayerProvider(props: { children: ReactNode }) {
     description: "",
     name: "",
   });
-  
+
   const [createLayerformStage, setCreateLayerformStage] = useState<string>("initial");
   const [loading, setLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<Error | null>(null);
@@ -140,6 +140,13 @@ export function LayerProvider(props: { children: ReactNode }) {
       postData,
       authResponse.idToken
     );
+
+    setTimeout(() => {
+      resetFormStage();
+      setSaveResponse(null);
+      resetFetchDatasetForm();
+    }, 1000)
+
   }
 
   function resetFormStage() {
@@ -337,10 +344,16 @@ export function LayerProvider(props: { children: ReactNode }) {
 
   function resetFetchDatasetForm() {
     // Reset form data when component unmounts
-
+    setReqFetchDataset({
+      selectedCountry: '',
+      selectedCity: '',
+      includedTypes: [],
+      excludedTypes: [],
+    });
     setTextSearchInput('');
     setSearchType('new nearby search');
     setPassword('');
+    setGeoPoints([])
   };
 
   useEffect(

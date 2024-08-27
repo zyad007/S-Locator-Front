@@ -1,31 +1,26 @@
-
-// src/App.tsx
-
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import Layout from "./components/Layout/Layout";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CatalogProvider } from "./context/CatalogContext";
 import { LayerProvider } from "./context/LayerContext";
+import { AuthProvider } from "./context/AuthContext";
+import Layout from "./components/Layout/Layout";
 import { UIProvider } from "./context/UIContext";
-import CheckExtensions from "./components/CheckExtension/CheckExtensions";
-import { AuthProvider } from './context/AuthContext';
 
-
-const App: React.FC = () => {
+function App() {
   return (
-    <Router>
-      <AuthProvider>
-      <CatalogProvider>
-        <LayerProvider>
-          <UIProvider>
-            <Layout />
-            {/* <CheckExtensions /> */}
-          </UIProvider>
-        </LayerProvider>
-      </CatalogProvider>
-      </AuthProvider>
-    </Router>
+    <div className="flex w-screen h-screen">
+      <BrowserRouter>
+        <AuthProvider>
+          <CatalogProvider>
+            <LayerProvider>
+              <UIProvider>
+                <Layout />
+              </UIProvider>
+            </LayerProvider>
+          </CatalogProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </div >
   );
-};
+}
 
 export default App;
