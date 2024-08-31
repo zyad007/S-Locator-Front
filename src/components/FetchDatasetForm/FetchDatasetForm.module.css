@@ -1,0 +1,111 @@
+.formGroup {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.select {
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  font-size: 16px;
+}
+
+.select:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  outline: none;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 40px; 
+}
+
+.button {
+  padding: 12px 20px;
+  background-color: rgb(17, 87, 64);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: rgb(14, 70, 52); 
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.categoryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.categoryGroup {
+  flex: 1;
+  min-width: 200px;
+}
+
+.categoryTitle {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.typeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.typeButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.typeButton:hover {
+  background-color: #e0e0e0;
+}
+
+.included {
+  background-color: rgb(40, 167, 69);
+  border-color: #167a1b;
+  color: white;
+}
+
+.excluded {
+  background-color: #ffebee;
+  border-color: #f44336;
+  color: #c62828;
+}
+
+.toggleIcon {
+  margin-left: 8px;
+  font-weight: bold;
+}

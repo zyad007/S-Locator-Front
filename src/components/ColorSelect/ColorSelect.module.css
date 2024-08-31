@@ -1,0 +1,100 @@
+.customSelectContainer {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.selectContainerContext {
+  width: 50px;
+}
+
+.customSelectValue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.noBorder {
+  border: none;
+  padding: 0;
+}
+
+.selectedText {
+  font-weight: bold;
+}
+
+.placeholder {
+  color: #aaa;
+}
+
+.colorCircle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: absolute;
+  left: 80px;
+}
+
+.colorCircleCatalog {
+  position: static;
+  min-width: 14px;
+  min-height: 14px;
+  margin-left: 16px;
+}
+
+.colorCatalog {
+  width: 14px;
+  height: 14px;
+  position: static;
+}
+
+.arrowIcon {
+  font-size: 24px;
+}
+
+.open {
+  transform: rotate(180deg);
+}
+
+.customSelectOptions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  z-index: 1;
+}
+
+.customSelectOption {
+  padding: 8px;
+  margin: 0 auto;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+
+.CatalogueSelectOptions {
+  max-width: 35px;
+  left: 5px;
+  top: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.customSelectOption:hover {
+  background-color: #f0f0f0;
+}
+
+.optionText {
+  margin-right: 10px;
+}

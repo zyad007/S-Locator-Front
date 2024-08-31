@@ -1,0 +1,118 @@
+/* src/components/CostEstimatorForm/CostEstimatorForm.module.css */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.categoryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.categoryGroup {
+  flex: 1;
+  min-width: 200px;
+}
+
+.categoryTitle {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.typeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.typeButton {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.typeButton:hover {
+  background-color: #e0e0e0;
+}
+
+.included {
+  background-color: #28a745;
+  color: white;
+}
+
+.excluded {
+  background-color: #dc3545;
+  color: white;
+}
+
+.toggleIcon {
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.buttonContainer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.button {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #dc3545;
+  margin-top: 10px;
+}
+
+.costEstimate {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.costEstimate h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
